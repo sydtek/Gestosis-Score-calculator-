@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDP Gestosis Score Calculator by SRK </title>
+    <style>
+        :root {
+            --primary-color: #0b5ed7;
+            --primary-dark: #0a58ca;
+            --secondary-color: #6c757d;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --border-color: #dee2e6;
+            --risk-low-bg: #d1e7dd;
+            --risk-low-text: #0f5132;
+            --risk-high-bg: #f8d7da;
+            --risk-high-text: #842029;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grid-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-card {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-card:hover {
+            border-color: var(--primary-color);
+            background: #f1f8ff;
+        }
+
+        .checkbox-card input[type="checkbox"] {
+            margin-top: 3px;
+            margin-right: 12px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .checkbox-card label {
+            cursor: pointer;
+            font-size: 0.95rem;
+            flex-grow: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 12px;
+            background: #e9ecef;
+            color: #495057;
+            margin-left: 6px;
+        }
+
+        .badge-1 { background: #cfe2ff; color: #084298; }
+        .badge-2 { background: #fff3cd; color: #664d03; }
+        .badge-3 { background: #f8d7da; color: #842029; }
+
+        .map-section {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .map-inputs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .input-control {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .input-control label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .input-control input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .result-panel {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            background: #e2e3e5;
+            transition: all 0.3s ease;
+        }
+
+        .result-panel.low-risk {
+            background-color: var(--risk-low-bg);
+            color: var(--risk-low-text);
+            border: 1px solid #badbcc;
+        }
+
+        .result-panel.high-risk {
+            background-color: var(--risk-high-bg);
+            color: var(--risk-high-text);
+            border: 1px solid #f5c2c7;
+        }
+
+        .result-score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .result-status {
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recommendation {
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Gestosis Score Calculator by SRK 🩺</h1>
+        <p>Standard Antenatal Screening Tool for Preeclampsia Risk Stratification (NHM / FOGSI-ICOG Guidelines)</p>
+    </header>
+
+    <!-- SECTION 1: MAP CALCULATION -->
+    <div class="map-section">
+        <div class="section-title" style="margin-top:0; border:none;">
+            <span>Mean Arterial Pressure (MAP) Assessment</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--secondary-color); margin-top:0;">
+            Calculated as: $\text{MAP} = \frac{\text{Systolic BP} + (2 \times \text{Diastolic BP})}{3}$. Automatically flags 1 point if MAP > 85 mmHg.
+        </p>
+        <div class="map-inputs">
+            <div class="input-control">
+                <label for="sbp">Systolic BP (mmHg)</label>
+                <input type="number" id="sbp" placeholder="e.g., 120" oninput="calculateScore()">
+            </div>
+            <div class="input-control">
+                <label for="dbp">Diastolic BP (mmHg)</label>
+                <input type="number" id="dbp" placeholder="e.g., 80" oninput="calculateScore()">
+            </div>
+            <div class="input-control">
+                <label>Calculated MAP</label>
+                <div id="mapValue" style="padding: 8px 0; font-weight: bold; font-size: 1.1rem;">-- mmHg</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DYNAMIC RISK FACTORS FORM -->
+    <form id="gestosisForm">
+        
+        <!-- WEIGHT 1 FACTORS -->
+        <div class="section-title">
+            <span>Mild Risk Factors</span>
+            <span class="badge badge-1">Weight: 1 Point Each</span>
+        </div>
+        <div class="grid-group">
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_age_gt_35" value="1" onchange="calculateScore()">
+                <label for="f_age_gt_35">Maternal Age > 35 years <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_age_lt_19" value="1" onchange="calculateScore()">
+                <label for="f_age_lt_19">Maternal Age < 19 years <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_anemia" value="1" onchange="calculateScore()">
+                <label for="f_anemia">Maternal Anemia <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_obesity_30" value="1" onchange="calculateScore()">
+                <label for="f_obesity_30">Obesity (BMI > 30 kg/m²) <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_primigravida" value="1" onchange="calculateScore()">
+                <label for="f_primigravida">Primigravida <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_cohabitation" value="1" onchange="calculateScore()">
+                <label for="f_cohabitation">Short duration of sperm exposure / cohabitation <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_sga" value="1" onchange="calculateScore()">
+                <label for="f_sga">Woman born as Small for Gestational Age (SGA) <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_cvd_fam" value="1" onchange="calculateScore()">
+                <label for="f_cvd_fam">Family History of Cardiovascular Disease <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_pcos" value="1" onchange="calculateScore()">
+                <label for="f_pcos">Polycystic Ovary Syndrome (PCOS) <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_ipi" value="1" onchange="calculateScore()">
+                <label for="f_ipi">Inter-pregnancy interval > 7 years <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_ivf" value="1" onchange="calculateScore()">
+                <label for="f_ivf">Conceived with ART (IVF / ICSI) Treatment <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_dyslipidemia" value="1" onchange="calculateScore()">
+                <label for="f_dyslipidemia">Chronic Vascular Disease / Dyslipidemia <span class="badge badge-1">1</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_wt_gain" value="1" onchange="calculateScore()">
+                <label for="f_wt_gain">Excessive weight gain during early pregnancy <span class="badge badge-1">1</span></label>
+            </div>
+            <!-- Dynamic MAP item tracked via JS logic -->
+            <div class="checkbox-card" id="card_map_gt_85" style="background: #f8f9fa; border-style: dashed;">
+                <input type="checkbox" id="f_map_gt_85" value="1" disabled>
+                <label for="f_map_gt_85" style="color: #6c757d;">MAP > 85 mmHg (Auto-calculated above) <span class="badge badge-1">1</span></label>
+            </div>
+        </div>
+
+        <!-- WEIGHT 2 FACTORS -->
+        <div class="section-title">
+            <span>Moderate Risk Factors</span>
+            <span class="badge badge-2">Weight: 2 Points Each</span>
+        </div>
+        <div class="grid-group">
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_hypothyroid" value="2" onchange="calculateScore()">
+                <label for="f_hypothyroid">Maternal Hypothyroidism <span class="badge badge-2">2</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_pe_fam" value="2" onchange="calculateScore()">
+                <label for="f_pe_fam">Family History of Preeclampsia <span class="badge badge-2">2</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_gdm" value="2" onchange="calculateScore()">
+                <label for="f_gdm">Gestational Diabetes Mellitus (GDM) <span class="badge badge-2">2</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_obesity_35" value="2" onchange="calculateScore()">
+                <label for="f_obesity_35">Obesity (BMI > 35 kg/m²) <span class="badge badge-2">2</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_multifetal" value="2" onchange="calculateScore()">
+                <label for="f_multifetal">Multifetal Pregnancy <span class="badge badge-2">2</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_prev_hdp" value="2" onchange="calculateScore()">
+                <label for="f_prev_hdp">Hypertensive Disease during Previous Pregnancy <span class="badge badge-2">2</span></label>
+            </div>
+        </div>
+
+        <!-- WEIGHT 3 FACTORS -->
+        <div class="section-title">
+            <span>High Risk Factors</span>
+            <span class="badge badge-3">Weight: 3 Points Each</span>
+        </div>
+        <div class="grid-group">
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_pregest_dm" value="3" onchange="calculateScore()">
+                <label for="f_pregest_dm">Pregestational Diabetes Mellitus <span class="badge badge-3">3</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_chronic_htn" value="3" onchange="calculateScore()">
+                <label for="f_chronic_htn">Chronic Hypertension <span class="badge badge-3">3</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_mental_disorder" value="3" onchange="calculateScore()">
+                <label for="f_mental_disorder">Mental Disorders <span class="badge badge-3">3</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_thrombophilia" value="3" onchange="calculateScore()">
+                <label for="f_thrombophilia">Inherited / Acquired Thrombophilia <span class="badge badge-3">3</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_ckd" value="3" onchange="calculateScore()">
+                <label for="f_ckd">Maternal Chronic Kidney Disease (CKD) <span class="badge badge-3">3</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_autoimmune" value="3" onchange="calculateScore()">
+                <label for="f_autoimmune">Autoimmune Disease (SLE / APLAS / RA) <span class="badge badge-3">3</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_art_od_surrogacy" value="3" onchange="calculateScore()">
+                <label for="f_art_od_surrogacy">ART with Oocyte Donation (OD) or Surrogacy <span class="badge badge-3">3</span></label>
+            </div>
+            <div class="checkbox-card">
+                <input type="checkbox" id="f_prev_hdp_treatment" value="3" onchange="calculateScore()">
+                <label for="f_prev_hdp_treatment">Current treatment/history for severe HDP <span class="badge badge-3">3</span></label>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- OUTPUT SCORE PANEL -->
+    <div id="resultPanel" class="result-panel">
+        <div style="font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Gestosis Score</div>
+        <div id="totalScore" class="result-score">0</div>
+        <div id="resultStatus" class="result-status">Low Risk</div>
+        <div id="recommendationText" class="recommendation">Score is less than 3. Standard routine antenatal monitoring recommended.</div>
+    </div>
+
+    <div class="footer-note">
+        Reference: FOGSI-ICOG Good Clinical Practice Recommendations (GCPR) on Hypertensive Disorders of Pregnancy, aligned with National Health Mission (NHM) screening algorithms. Cutoff threshold for high-risk categorization is <strong>&ge; 3</strong>.
+    </div>
+</div>
+
+<script>
+    function calculateScore() {
+        const sbpInput = parseFloat(document.getElementById('sbp').value);
+        const dbpInput = parseFloat(document.getElementById('dbp').value);
+        
+        let map = 0;
+        let mapScoreAdded = 0;
+        const mapDisplay = document.getElementById('mapValue');
+        const mapCheckbox = document.getElementById('f_map_gt_85');
+        
+        // Calculate Mean Arterial Pressure (MAP)
+        if (!isNaN(sbpInput) && !isNaN(dbpInput) && sbpInput > 0 && dbpInput > 0) {
+            map = (sbpInput + (2 * dbpInput)) / 3;
+            mapDisplay.innerText = map.toFixed(1) + " mmHg";
+            
+            if (map > 85) {
+                mapCheckbox.checked = true;
+                mapScoreAdded = 1;
+            } else {
+                mapCheckbox.checked = false;
+                mapScoreAdded = 0;
+            }
+        } else {
+            mapDisplay.innerText = "-- mmHg";
+            mapCheckbox.checked = false;
+            mapScoreAdded = 0;
+        }
+
+        // Sum checked inputs
+        const form = document.getElementById('gestosisForm');
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
+        
+        let totalScore = 0;
+        checkboxes.forEach(cb => {
+            totalScore += parseInt(cb.value) || 0;
+        });
+
+        // Update UI View
+        const scoreElement = document.getElementById('totalScore');
+        const statusElement = document.getElementById('resultStatus');
+        const recommendationElement = document.getElementById('recommendationText');
+        const panelElement = document.getElementById('resultPanel');
+
+        scoreElement.innerText = totalScore;
+
+        if (totalScore >= 3) {
+            panelElement.className = "result-panel high-risk";
+            statusElement.innerText = "At Risk for Preeclampsia (High Risk)";
+            recommendationElement.innerHTML = "<strong>Action Required:</strong> Total score is &ge; 3. Consider instituting preventive measures such as low-dose Aspirin (75–150 mg) as per protocol, intensive blood pressure monitoring, and timely referral/closer follow-up per NHM guidelines.";
+        } else {
+            panelElement.className = "result-panel low-risk";
+            statusElement.innerText = "Low Risk";
+            recommendationElement.innerHTML = "<strong>Action Required:</strong> Score is < 3. Follow standard routine antenatal care (ANC) guidelines, lifestyle advice, and repeat screening if clinical symptoms emerge.";
+        }
+    }
+</script>
+
+</body>
+</html>
+
